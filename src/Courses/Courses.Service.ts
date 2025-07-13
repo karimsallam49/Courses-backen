@@ -1,16 +1,17 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types,Schema } from "mongoose";
 import { CoursesDocument } from "./CourseSschema";
 import { addCourseDTO, UpdateCourseDTO } from "src/DTO/DTO";
-import { skip } from "rxjs";
+import { UserDocument } from "src/Users/UserSchema";
 
 @Injectable()
 
 export class CoursesService{
 
     constructor(
-        @InjectModel('Courses')private readonly CoursesModel:Model<CoursesDocument>
+        @InjectModel('Courses')private readonly CoursesModel:Model<CoursesDocument>,
+        @InjectModel('User')private readonly UserModel:Model<UserDocument>
     ){}
 
 
@@ -25,11 +26,23 @@ export class CoursesService{
         return await this.CoursesModel.findById(id)
     }
 
-    async getCoursesByName(name:string){
-return await this.CoursesModel.find({
-  Title: { $regex: name, $options: 'i' }
-});
+ async getCoursesByName(name: string, userId?: string) {
+  if (userId) {
+    const currentUser = await this.UserModel.findById(userId);
+    if (!currentUser) return;
+
+    currentUser.SearchHistory = currentUser.SearchHistory || [];
+    if (!currentUser.SearchHistory.includes(name)) {
+      currentUser.SearchHistory.push(name);
+      await currentUser.save();
     }
+  }
+
+  return await this.CoursesModel.find({
+    Title: { $regex: name, $options: 'i' },
+  });
+}
+
 
     public async addCourse(Body:addCourseDTO){
         const{title,price,cover,link}=Body
@@ -74,4 +87,28 @@ return await this.CoursesModel.find({
                 IsCourseExist
             }
     }
+
+
+public async EnrollCourse(Courseid: string, UserId: string) {
+  const userObjectId = new Types.ObjectId(UserId);
+
+  const CurrentCourse = await this.CoursesModel.findById(Courseid);
+  if (!CurrentCourse) {
+    throw new BadRequestException("This course does not exist");
+  }
+
+  if (CurrentCourse.Users.map(user => user.toString()).includes(UserId)) {
+    throw new BadRequestException("This course is already enrolled");
+  }
+
+
+  CurrentCourse.Users.push(userObjectId);
+  await CurrentCourse.save();
+
+  return {
+    Message: "Course Added Successfully"
+  };
+}
+
+
 }

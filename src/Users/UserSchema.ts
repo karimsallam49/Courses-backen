@@ -32,6 +32,8 @@ export class User {
 
   @Prop()
   Profileiamge: string;
+  @Prop({maxlength:8})
+  SearchHistory: string[];
 
   @Prop()
   Courses:[]

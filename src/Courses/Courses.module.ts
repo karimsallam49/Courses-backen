@@ -5,12 +5,14 @@ import { CoursesService } from "./Courses.Service";
 import { CoursesController } from "./Courses.Controller";
 import { JwtModule } from "@nestjs/jwt";
 import { UserModule } from "src/Users/user.module";
+import { UserSchema } from "src/Users/UserSchema";
 
 @Module({
     controllers:[CoursesController],
     providers:[CoursesService],
      imports:[
         MongooseModule.forFeature([{ name: 'Courses', schema: CoursesShema }]),
+
         JwtModule,
         UserModule
     

@@ -1,5 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 
 export type CoursesDocument = Courses & Document;
 
@@ -21,8 +21,8 @@ export class Courses {
   @Prop()
   Cover: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  Users:mongoose.Schema.Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  Users:Types.ObjectId[];
 }
 
 export const CoursesShema = SchemaFactory.createForClass(Courses);

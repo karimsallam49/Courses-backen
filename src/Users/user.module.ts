@@ -9,9 +9,9 @@ import { UserController } from "./User.controller";
 @Module({
   controllers: [UserController],
   providers: [usersService],
-  exports: [usersService],
+  exports: [usersService,MongooseModule],
   imports: [
-    ConfigModule, // لازم تستورده هنا علشان تقدر تستخدم ConfigService
+    ConfigModule, 
 
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
 
